@@ -9,7 +9,7 @@ def plane_fit(
     max_iterations=1000,
     iterations_per_batch=1,
     epsilon=1e-8,
-    device=torch.device("cuda"),
+    device=torch.device("cpu"),
 ):
     """
     Find the best equation for a plane in batched RANSAC approach.
@@ -21,8 +21,8 @@ def plane_fit(
     :param iterations_per_batch: Number of iterations to run in parallel.
     :param device: Device for running the algorithm (default is cuda).
     :returns:
-    - `self.equation`: Parameters of the plane using Ax+By+Cz+D `torch.Tensor (1, 4)`
-    - `self.inliers`: Points from the dataset considered inliers.
+    - `equation`: Parameters of the plane using Ax+By+Cz+D `torch.Tensor (1, 4)`
+    - `inliers`: Points from the dataset considered inliers.
     """
 
     pts = pts.to(device)

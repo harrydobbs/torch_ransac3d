@@ -9,12 +9,12 @@ def line_fit(
     max_iterations=1000,
     iterations_per_batch=1,
     epsilon=1e-8,
-    device=torch.device("cuda"),
+    device=torch.device("cpu"),
 ):
     """
     Fit a line using a RANSAC-like method in a batched approach.
 
-    :param pts: 2D point cloud as a `torch.Tensor (N, 3)`.
+    :param pts: 3D point cloud as a `torch.Tensor (N, 3)`.
     :param distance_threshold: Threshold distance to consider a point as an inlier.
     :param max_iterations: Maximum number of iterations for the RANSAC loop.
     :param iterations_per_batch: Number of iterations processed in each batch.
@@ -27,7 +27,7 @@ def line_fit(
     """
 
     # Move the point cloud to the specified device (CUDA or CPU)
-    pts = pts.to(device)
+    # pts = pts.to(device)
     num_pts = pts.shape[0]
 
     # Initialize variables to store the best result

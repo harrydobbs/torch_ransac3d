@@ -9,7 +9,7 @@ def sphere_fit(
     max_iterations=1000,
     iterations_per_batch=1,
     epsilon=1e-8,
-    device=torch.device("cuda"),
+    device=torch.device("cpu"),
 ):
     """
     Find the best parameters (center and radius) for a sphere in batched RANSAC approach.
