@@ -38,8 +38,6 @@ def line_fit(
         - best_inlier_indices (torch.Tensor): Indices of points considered inliers
     :rtype: Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
 
-    :raises ValueError: If the input point cloud is empty or has incorrect shape.
-
     Example:
         >>> pts = torch.randn(1000, 3)
         >>> direction, point, inlier_indices = line_fit(pts)

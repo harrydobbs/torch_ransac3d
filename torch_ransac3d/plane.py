@@ -37,8 +37,6 @@ def plane_fit(
         - inliers (torch.Tensor): Points from the dataset considered as inliers
     :rtype: Tuple[torch.Tensor, torch.Tensor]
 
-    :raises ValueError: If the input point cloud is empty or has incorrect shape.
-
     Example:
         >>> pts = torch.randn(1000, 3)
         >>> equation, inliers = plane_fit(pts)

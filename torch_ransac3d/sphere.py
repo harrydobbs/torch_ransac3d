@@ -38,8 +38,6 @@ def sphere_fit(
         - best_inlier_indices (torch.Tensor): Indices of points from the dataset considered as inliers
     :rtype: Tuple[torch.Tensor, float, torch.Tensor]
 
-    :raises ValueError: If the input point cloud is empty or has incorrect shape.
-
     Example:
         >>> pts = torch.randn(1000, 3)
         >>> center, radius, inlier_indices = sphere_fit(pts)
