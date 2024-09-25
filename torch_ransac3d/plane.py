@@ -1,28 +1,49 @@
 import torch
 
+from typing import Tuple
+
 
 @torch.compile
 @torch.no_grad()
 def plane_fit(
-    pts,
-    thresh=0.05,
-    max_iterations=1000,
-    iterations_per_batch=1,
-    epsilon=1e-8,
-    device=torch.device("cpu"),
-):
+    pts: torch.Tensor,
+    thresh: float = 0.05,
+    max_iterations: int = 1000,
+    iterations_per_batch: int = 1,
+    epsilon: float = 1e-8,
+    device: torch.device = torch.device("cpu"),
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """
-    Find the best equation for a plane in batched RANSAC approach.
+    Find the best equation for a plane using a batched RANSAC approach.
 
-    :param pts: 3D point cloud as a torch.Tensor (N, 3).
-    :param thresh: Threshold distance from the plane which is considered inlier.
-    :param min_points: Minimum number of points considered as inliers.
-    :param max_iterations: Number of maximum iterations for RANSAC.
-    :param iterations_per_batch: Number of iterations to run in parallel.
-    :param device: Device for running the algorithm (default is cuda).
-    :returns:
-    - `equation`: Parameters of the plane using Ax+By+Cz+D `torch.Tensor (1, 4)`
-    - `inliers`: Points from the dataset considered inliers.
+    This function fits a plane to a 3D point cloud using a RANSAC-like method,
+    processing multiple iterations in parallel for efficiency.
+
+    :param pts: 3D point cloud.
+    :type pts: torch.Tensor
+    :param thresh: Threshold distance from the plane to consider a point as an inlier.
+    :type thresh: float
+    :param max_iterations: Maximum number of iterations for the RANSAC algorithm.
+    :type max_iterations: int
+    :param iterations_per_batch: Number of iterations to process in parallel.
+    :type iterations_per_batch: int
+    :param epsilon: Small value to avoid division by zero.
+    :type epsilon: float
+    :param device: Device to run the computations on.
+    :type device: torch.device
+
+    :return: A tuple containing:
+        - equation (torch.Tensor): Parameters of the plane equation Ax+By+Cz+D (shape: (1, 4))
+        - inliers (torch.Tensor): Points from the dataset considered as inliers
+    :rtype: Tuple[torch.Tensor, torch.Tensor]
+
+    :raises ValueError: If the input point cloud is empty or has incorrect shape.
+
+    Example:
+        >>> pts = torch.randn(1000, 3)
+        >>> equation, inliers = plane_fit(pts)
+        >>> print(f"Plane equation: {equation}")
+        >>> print(f"Number of inliers: {inliers.shape[0]}")
     """
 
     pts = pts.to(device)

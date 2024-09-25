@@ -1,31 +1,52 @@
 import torch
 
+from typing import Tuple
+
 
 @torch.compile
 @torch.no_grad()
 def sphere_fit(
-    pts,
-    thresh=0.05,
-    max_iterations=1000,
-    iterations_per_batch=1,
-    epsilon=1e-8,
-    device=torch.device("cpu"),
-):
+    pts: torch.Tensor,
+    thresh: float = 0.05,
+    max_iterations: int = 1000,
+    iterations_per_batch: int = 1,
+    epsilon: float = 1e-8,
+    device: torch.device = torch.device("cpu"),
+) -> Tuple[torch.Tensor, float, torch.Tensor]:
     """
-    Find the best parameters (center and radius) for a sphere in batched RANSAC approach.
+    Find the best parameters (center and radius) for a sphere using a batched RANSAC approach.
 
-    :param pts: 3D point cloud as a torch.Tensor (N, 3).
-    :param thresh: Threshold distance from the sphere hull which is considered inlier.
-    :param max_iterations: Maximum number of iterations for RANSAC.
-    :param iterations_per_batch: Number of iterations to run in parallel.
-    :param device: Device for running the algorithm (default is cuda).
+    This function fits a sphere to a 3D point cloud using a RANSAC-like method,
+    processing multiple iterations in parallel for efficiency.
+
+    :param pts: 3D point cloud.
+    :type pts: torch.Tensor
+    :param thresh: Threshold distance from the sphere surface to consider a point as an inlier.
+    :type thresh: float
+    :param max_iterations: Maximum number of iterations for the RANSAC algorithm.
+    :type max_iterations: int
+    :param iterations_per_batch: Number of iterations to process in parallel.
+    :type iterations_per_batch: int
     :param epsilon: Small value to avoid division by zero.
-    :returns:
-    - `best_center`: Center of the sphere as a torch.Tensor (3,).
-    - `best_radius`: Radius of the sphere.
-    - `best_inlier_indices`: Indices of points from the dataset considered inliers.
-    """
+    :type epsilon: float
+    :param device: Device to run the computations on.
+    :type device: torch.device
 
+    :return: A tuple containing:
+        - best_center (torch.Tensor): Center of the sphere (shape: (3,))
+        - best_radius (float): Radius of the sphere
+        - best_inlier_indices (torch.Tensor): Indices of points from the dataset considered as inliers
+    :rtype: Tuple[torch.Tensor, float, torch.Tensor]
+
+    :raises ValueError: If the input point cloud is empty or has incorrect shape.
+
+    Example:
+        >>> pts = torch.randn(1000, 3)
+        >>> center, radius, inlier_indices = sphere_fit(pts)
+        >>> print(f"Sphere center: {center}")
+        >>> print(f"Sphere radius: {radius}")
+        >>> print(f"Number of inliers: {inlier_indices.shape[0]}")
+    """
     pts = pts.to(device)
     num_pts = pts.shape[0]
 

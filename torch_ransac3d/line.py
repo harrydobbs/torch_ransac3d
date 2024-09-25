@@ -1,29 +1,51 @@
 import torch
 
+from typing import Tuple
+
 
 @torch.compile
 @torch.no_grad()
 def line_fit(
-    pts,
-    thresh=0.01,
-    max_iterations=1000,
-    iterations_per_batch=1,
-    epsilon=1e-8,
-    device=torch.device("cpu"),
-):
+    pts: torch.Tensor,
+    thresh: float = 0.01,
+    max_iterations: int = 1000,
+    iterations_per_batch: int = 1,
+    epsilon: float = 1e-8,
+    device: torch.device = torch.device("cpu"),
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     Fit a line using a RANSAC-like method in a batched approach.
 
-    :param pts: 3D point cloud as a `torch.Tensor (N, 3)`.
-    :param distance_threshold: Threshold distance to consider a point as an inlier.
+    This function fits a line to a 3D point cloud using a RANSAC-like method,
+    processing multiple iterations in parallel for efficiency.
+
+    :param pts: 3D point cloud.
+    :type pts: torch.Tensor
+    :param thresh: Threshold distance to consider a point as an inlier.
+    :type thresh: float
     :param max_iterations: Maximum number of iterations for the RANSAC loop.
+    :type max_iterations: int
     :param iterations_per_batch: Number of iterations processed in each batch.
+    :type iterations_per_batch: int
     :param epsilon: Small value to avoid division by zero.
-    :param device: Device to run the computations (CPU/CUDA).
-    :returns:
-    - `best_line_direction`: Best line direction vector found.
-    - `best_line_point`: A point on the best line found.
-    - `best_inlier_indices`: Indices of points considered inliers.
+    :type epsilon: float
+    :param device: Device to run the computations on.
+    :type device: torch.device
+
+    :return: A tuple containing:
+        - best_line_direction (torch.Tensor): Best line direction vector found (shape: (3,))
+        - best_line_point (torch.Tensor): A point on the best line found (shape: (3,))
+        - best_inlier_indices (torch.Tensor): Indices of points considered inliers
+    :rtype: Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+
+    :raises ValueError: If the input point cloud is empty or has incorrect shape.
+
+    Example:
+        >>> pts = torch.randn(1000, 3)
+        >>> direction, point, inlier_indices = line_fit(pts)
+        >>> print(f"Line direction: {direction}")
+        >>> print(f"Point on line: {point}")
+        >>> print(f"Number of inliers: {inlier_indices.shape[0]}")
     """
 
     # Move the point cloud to the specified device (CUDA or CPU)
