@@ -10,10 +10,7 @@ Welcome to torch_ransac3d's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-.. automodule:: torch_ransac3d
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   modules
 
 Indices and tables
 ==================
