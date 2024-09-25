@@ -1,10 +1,9 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "torch_ransac3d"
-version = "1.0.1"
 authors = [
     {name = "Harry Dobbs", email = "harrydobbs87@gmail.com"},
 ]
@@ -25,11 +24,14 @@ classifiers = [
 [tool.setuptools.packages]
 find = {}  # Scan the project directory with the default parameters
 
+[tool.setuptools_scm]
+
 [project.scripts]
 
 
 [project.urls]
 Homepage = "https://github.com/harrydobbs/torch_ransac3d"
+Documentation = "https://harrydobbs.github.io/torch_ransac3d/"
 Issues = "https://github.com/harrydobbs/torch_ransac3d/issues"
 
 
