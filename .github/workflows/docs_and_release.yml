@@ -1,0 +1,81 @@
+name: Release and Documentation
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # fetch all history for all branches and tags
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install .[dev]
+        pip install build sphinx sphinx-autodoc-typehints
+
+    - name: Build package
+      run: python -m build --sdist --wheel --outdir dist/ .
+
+    - name: Build documentation
+      run: |
+        sphinx-apidoc -o docs/source .
+        cd docs
+        make html
+      
+    - name: Upload package artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: dist
+        path: dist/
+
+    - name: Upload docs artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: docs
+        path: docs/build/html/
+
+  publish-pypi:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+    - uses: actions/download-artifact@v2
+      with:
+        name: dist
+        path: dist/
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+
+  publish-docs:
+    needs: [build, publish-pypi]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/download-artifact@v2
+      with:
+        name: docs
+        path: docs/
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
