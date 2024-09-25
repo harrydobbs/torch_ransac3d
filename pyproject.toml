@@ -4,22 +4,22 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "torch_ransac3d"
+version = "0.0.0"  # This is a placeholder, setuptools_scm will override it
 authors = [
-    {name = "Harry Dobbs", email = "harrydobbs87@gmail.com"},
+ {name = "Harry Dobbs", email = "harrydobbs87@gmail.com"},
 ]
 description = "A high-performance implementation of 3D RANSAC (Random Sample Consensus) algorithm using PyTorch and CUDA."
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 dependencies = [
-    'numpy',
-    'torch'
+ 'numpy',
+ 'torch'
 ]
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
+# ... rest of your project configuration ...
+
+[tool.setuptools_scm]
+write_to = "torch_ransac3d/_version.py"
 
 [tool.setuptools.packages]
 find = {}  # Scan the project directory with the default parameters
