@@ -25,7 +25,7 @@
 # Installation
 Requirements: torch
 
-Install with Pypi:
+Install with <a href="https://pypi.org/project/torch-ransac3d"> Pypi </a>:
 
 ```pip install torch_ransac3d```
 
