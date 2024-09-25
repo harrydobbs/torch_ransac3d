@@ -5,7 +5,7 @@
     <img src="images/logo.png" alt="Logo">
   </a>
 
-<h3 align="center">torch_ransac3d</h3>
+<!-- <h3 align="center">torch_ransac3d</h3> -->
 
   <p align="center">
     A high-performance implementation of 3D RANSAC (Random Sample Consensus) algorithm using PyTorch and CUDA.
@@ -43,3 +43,8 @@ Currently other supported geometries include planes and spheres.
 
 # Credit:
 This is based on the work done at https://github.com/leomariga/pyRANSAC-3D/
+
+
+# Contact
+Harry Dobbs
+Email: harrydobbs87@gmail.com
