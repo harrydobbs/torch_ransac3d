@@ -10,7 +10,7 @@
   <p align="center">
     A high-performance implementation of 3D RANSAC (Random Sample Consensus) algorithm using PyTorch and CUDA.
     <br />
-    <a href="https://github.com/harrydobbs/torch_ransac3d/"><strong>Explore the docs »</strong></a>
+    <a href="https://harrydobbs.github.io/torch_ransac3d/"><strong>Explore the docs »</strong></a>    <br />
     <br />
     <br />
     <a href="https://github.com/harrydobbs/torch_ransac3d/">View Demo</a>
