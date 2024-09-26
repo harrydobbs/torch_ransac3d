@@ -126,6 +126,20 @@ All fitting functions support batch processing to improve performance. The `iter
 
 This project is based on the work done at https://github.com/leomariga/pyRANSAC-3D/
 
+## Citation
+```
+@software{Dobbs_torch_ransac3d,
+  author       = {Dobbs, Harry},
+  title        = {torch\_ransac3d: A high-performance implementation of 3D RANSAC algorithm using PyTorch and CUDA},
+  year         = {2024},
+  publisher    = {GitHub},
+  journal      = {GitHub repository},
+  url          = {https://github.com/harrydobbs/torch_ransac3d},
+}
+```
+
+
+
 ## Contact
 
 **Maintainer:** Harry Dobbs  
