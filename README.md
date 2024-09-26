@@ -2,7 +2,7 @@
 <br />
 <div align="center">
 <a href="https://github.com/harrydobbs/torch_ransac3d">
-<img src="images/logo.png" alt="Logo">
+<img src="images/logo.png">
 </a>
 <br><br>
 <!-- <h3 align="center">torch_ransac3d</h3> -->
