@@ -38,4 +38,5 @@ dev = [
     "sphinx",
     "sphinx-autodoc-typehints",
     "sphinx-rtd-theme",
+    "open3d"
 ]

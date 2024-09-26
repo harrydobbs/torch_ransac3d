@@ -1,8 +1,10 @@
 import torch
 
 from typing import Tuple
+from .wrapper import numpy_to_torch
 
 
+@numpy_to_torch
 @torch.compile
 @torch.no_grad()
 def line_fit(
