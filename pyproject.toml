@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "torch_ransac3d"
-version = "1.0.35"  # This is a placeholder, setuptools_scm will override it
+version = "1.0.35" 
 authors = [
  {name = "Harry Dobbs", email = "harrydobbs87@gmail.com"},
 ]
