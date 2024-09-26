@@ -22,7 +22,7 @@
 
 ## Installation
 
-Requirements: torch
+Requirements: torch, numpy
 
 Install with <a href="https://pypi.org/project/torch-ransac3d"> PyPI </a>:
 ```
