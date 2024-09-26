@@ -38,121 +38,12 @@
 </section>
 <section id="module-torch_ransac3d.line">
 <span id="torch-ransac3d-line-module"></span><h2>torch_ransac3d.line module<a class="headerlink" href="#module-torch_ransac3d.line" title="Link to this heading">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="torch_ransac3d.line.line_fit">
-<span class="sig-prename descclassname"><span class="pre">torch_ransac3d.line.</span></span><span class="sig-name descname"><span class="pre">line_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations_per_batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">device(type='cpu')</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torch_ransac3d.line.line_fit" title="Link to this definition">¶</a></dt>
-<dd><p>Fit a line using a RANSAC-like method in a batched approach.</p>
-<p>This function fits a line to a 3D point cloud using a RANSAC-like method,
-processing multiple iterations in parallel for efficiency.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pts</strong> (<em>torch.Tensor</em>) – 3D point cloud.</p></li>
-<li><p><strong>thresh</strong> (<em>float</em>) – Threshold distance to consider a point as an inlier.</p></li>
-<li><p><strong>max_iterations</strong> (<em>int</em>) – Maximum number of iterations for the RANSAC loop.</p></li>
-<li><p><strong>iterations_per_batch</strong> (<em>int</em>) – Number of iterations processed in each batch.</p></li>
-<li><p><strong>epsilon</strong> (<em>float</em>) – Small value to avoid division by zero.</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em>) – Device to run the computations on.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing:
-- best_line_direction (torch.Tensor): Best line direction vector found (shape: (3,))
-- best_line_point (torch.Tensor): A point on the best line found (shape: (3,))
-- best_inlier_indices (torch.Tensor): Indices of points considered inliers</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor, torch.Tensor]</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pts</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">direction</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">inlier_indices</span> <span class="o">=</span> <span class="n">line_fit</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Line direction: </span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Point on line: </span><span class="si">{</span><span class="n">point</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of inliers: </span><span class="si">{</span><span class="n">inlier_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
 </section>
 <section id="module-torch_ransac3d.plane">
 <span id="torch-ransac3d-plane-module"></span><h2>torch_ransac3d.plane module<a class="headerlink" href="#module-torch_ransac3d.plane" title="Link to this heading">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="torch_ransac3d.plane.plane_fit">
-<span class="sig-prename descclassname"><span class="pre">torch_ransac3d.plane.</span></span><span class="sig-name descname"><span class="pre">plane_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations_per_batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">device(type='cpu')</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torch_ransac3d.plane.plane_fit" title="Link to this definition">¶</a></dt>
-<dd><p>Find the best equation for a plane using a batched RANSAC approach.</p>
-<p>This function fits a plane to a 3D point cloud using a RANSAC-like method,
-processing multiple iterations in parallel for efficiency.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pts</strong> (<em>torch.Tensor</em>) – 3D point cloud.</p></li>
-<li><p><strong>thresh</strong> (<em>float</em>) – Threshold distance from the plane to consider a point as an inlier.</p></li>
-<li><p><strong>max_iterations</strong> (<em>int</em>) – Maximum number of iterations for the RANSAC algorithm.</p></li>
-<li><p><strong>iterations_per_batch</strong> (<em>int</em>) – Number of iterations to process in parallel.</p></li>
-<li><p><strong>epsilon</strong> (<em>float</em>) – Small value to avoid division by zero.</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em>) – Device to run the computations on.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing:
-- equation (torch.Tensor): Parameters of the plane equation Ax+By+Cz+D (shape: (1, 4))
-- inliers (torch.Tensor): Points from the dataset considered as inliers</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pts</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">equation</span><span class="p">,</span> <span class="n">inliers</span> <span class="o">=</span> <span class="n">plane_fit</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plane equation: </span><span class="si">{</span><span class="n">equation</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of inliers: </span><span class="si">{</span><span class="n">inliers</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
 </section>
 <section id="module-torch_ransac3d.sphere">
 <span id="torch-ransac3d-sphere-module"></span><h2>torch_ransac3d.sphere module<a class="headerlink" href="#module-torch_ransac3d.sphere" title="Link to this heading">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="torch_ransac3d.sphere.sphere_fit">
-<span class="sig-prename descclassname"><span class="pre">torch_ransac3d.sphere.</span></span><span class="sig-name descname"><span class="pre">sphere_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations_per_batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">device(type='cpu')</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torch_ransac3d.sphere.sphere_fit" title="Link to this definition">¶</a></dt>
-<dd><p>Find the best parameters (center and radius) for a sphere using a batched RANSAC approach.</p>
-<p>This function fits a sphere to a 3D point cloud using a RANSAC-like method,
-processing multiple iterations in parallel for efficiency.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pts</strong> (<em>torch.Tensor</em>) – 3D point cloud.</p></li>
-<li><p><strong>thresh</strong> (<em>float</em>) – Threshold distance from the sphere surface to consider a point as an inlier.</p></li>
-<li><p><strong>max_iterations</strong> (<em>int</em>) – Maximum number of iterations for the RANSAC algorithm.</p></li>
-<li><p><strong>iterations_per_batch</strong> (<em>int</em>) – Number of iterations to process in parallel.</p></li>
-<li><p><strong>epsilon</strong> (<em>float</em>) – Small value to avoid division by zero.</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em>) – Device to run the computations on.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing:
-- best_center (torch.Tensor): Center of the sphere (shape: (3,))
-- best_radius (float): Radius of the sphere
-- best_inlier_indices (torch.Tensor): Indices of points from the dataset considered as inliers</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[torch.Tensor, float, torch.Tensor]</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pts</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">center</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">inlier_indices</span> <span class="o">=</span> <span class="n">sphere_fit</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sphere center: </span><span class="si">{</span><span class="n">center</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sphere radius: </span><span class="si">{</span><span class="n">radius</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of inliers: </span><span class="si">{</span><span class="n">inlier_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
 </section>
 <section id="module-torch_ransac3d">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-torch_ransac3d" title="Link to this heading">¶</a></h2>
