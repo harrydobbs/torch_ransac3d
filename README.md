@@ -1,4 +1,3 @@
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
@@ -38,6 +37,7 @@ pip install torch-ransac3d
   - Planes
   - Spheres
 - Batch processing capability for improved efficiency
+- Support for both PyTorch tensors and NumPy arrays as input
 
 ## Example Usage
 
@@ -45,11 +45,24 @@ pip install torch-ransac3d
 
 ```python
 import torch
+import numpy as np
 from torch_ransac3d.line import line_fit
 
-points = torch.rand(1000, 3)
+# Using PyTorch tensor
+points_torch = torch.rand(1000, 3)
 direction, point, inliers = line_fit(
-    pts=points,
+    pts=points_torch,
+    thresh=0.01,
+    max_iterations=1000,
+    iterations_per_batch=100,
+    epsilon=1e-8,
+    device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+)
+
+# Using NumPy array
+points_numpy = np.random.rand(1000, 3)
+direction, point, inliers = line_fit(
+    pts=points_numpy,
     thresh=0.01,
     max_iterations=1000,
     iterations_per_batch=100,
@@ -63,7 +76,8 @@ direction, point, inliers = line_fit(
 ```python
 from torch_ransac3d.plane import plane_fit
 
-points = torch.rand(1000, 3)
+# Works with both PyTorch tensors and NumPy arrays
+points = torch.rand(1000, 3)  # or np.random.rand(1000, 3)
 equation, inliers = plane_fit(
     pts=points,
     thresh=0.05,
@@ -79,7 +93,8 @@ equation, inliers = plane_fit(
 ```python
 from torch_ransac3d.sphere import sphere_fit
 
-points = torch.rand(1000, 3)
+# Works with both PyTorch tensors and NumPy arrays
+points = torch.rand(1000, 3)  # or np.random.rand(1000, 3)
 center, radius, inliers = sphere_fit(
     pts=points,
     thresh=0.05,
@@ -92,12 +107,16 @@ center, radius, inliers = sphere_fit(
 
 ## Parameters
 
-- `pts`: Input point cloud (torch.Tensor of shape (N, 3))
+- `pts`: Input point cloud (torch.Tensor or numpy.ndarray of shape (N, 3))
 - `thresh`: Distance threshold for considering a point as an inlier
 - `max_iterations`: Maximum number of RANSAC iterations
 - `iterations_per_batch`: Number of iterations to process in parallel
 - `epsilon`: Small value to avoid division by zero
 - `device`: Torch device to run computations on (CPU or CUDA)
+
+## Input Flexibility
+
+All fitting functions support both PyTorch tensors and NumPy arrays as input. The library automatically converts NumPy arrays to PyTorch tensors internally, allowing for seamless integration with various data formats.
 
 ## Batch Processing
 
