@@ -36,8 +36,13 @@ pip install torch-ransac3d
   - Lines
   - Planes
   - Spheres
+  - Circles
+  - Cylinders
+  - Cuboids
+  - Points
 - Batch processing capability for improved efficiency
 - Support for both PyTorch tensors and NumPy arrays as input
+- Clean dataclass return types for all fitting functions
 
 ## Example Usage
 
@@ -50,7 +55,7 @@ from torch_ransac3d.line import line_fit
 
 # Using PyTorch tensor
 points_torch = torch.rand(1000, 3)
-direction, point, inliers = line_fit(
+result = line_fit(
     pts=points_torch,
     thresh=0.01,
     max_iterations=1000,
@@ -58,10 +63,13 @@ direction, point, inliers = line_fit(
     epsilon=1e-8,
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 )
+print(f"Direction: {result.direction}")
+print(f"Point: {result.point}")
+print(f"Number of inliers: {len(result.inliers)}")
 
 # Using NumPy array
 points_numpy = np.random.rand(1000, 3)
-direction, point, inliers = line_fit(
+result = line_fit(
     pts=points_numpy,
     thresh=0.01,
     max_iterations=1000,
@@ -78,7 +86,7 @@ from torch_ransac3d.plane import plane_fit
 
 # Works with both PyTorch tensors and NumPy arrays
 points = torch.rand(1000, 3)  # or np.random.rand(1000, 3)
-equation, inliers = plane_fit(
+result = plane_fit(
     pts=points,
     thresh=0.05,
     max_iterations=1000,
@@ -86,6 +94,8 @@ equation, inliers = plane_fit(
     epsilon=1e-8,
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 )
+print(f"Plane equation: {result.equation}")  # [a, b, c, d] for ax + by + cz + d = 0
+print(f"Number of inliers: {len(result.inliers)}")
 ```
 
 ### Sphere Fitting
@@ -95,7 +105,7 @@ from torch_ransac3d.sphere import sphere_fit
 
 # Works with both PyTorch tensors and NumPy arrays
 points = torch.rand(1000, 3)  # or np.random.rand(1000, 3)
-center, radius, inliers = sphere_fit(
+result = sphere_fit(
     pts=points,
     thresh=0.05,
     max_iterations=1000,
@@ -103,6 +113,9 @@ center, radius, inliers = sphere_fit(
     epsilon=1e-8,
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 )
+print(f"Center: {result.center}")
+print(f"Radius: {result.radius}")
+print(f"Number of inliers: {len(result.inliers)}")
 ```
 
 ## Parameters
@@ -142,5 +155,5 @@ This project is based on the work done at https://github.com/leomariga/pyRANSAC-
 
 ## Contact
 
-**Maintainer:** Harry Dobbs  
+**Maintainer:** Harry Dobbs
 **Email:** harrydobbs87@gmail.com

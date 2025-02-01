@@ -1,7 +1,8 @@
-import torch
-
 from typing import Tuple
 
+import torch
+
+from .dataclasses import SphereFitResult
 from .wrapper import numpy_to_torch
 
 
@@ -15,7 +16,7 @@ def sphere_fit(
     iterations_per_batch: int = 1,
     epsilon: float = 1e-8,
     device: torch.device = torch.device("cpu"),
-) -> Tuple[torch.Tensor, float, torch.Tensor]:
+) -> SphereFitResult:
     """
     Find the best parameters (center and radius) for a sphere using a batched RANSAC approach.
 
@@ -35,11 +36,11 @@ def sphere_fit(
     :param device: Device to run the computations on.
     :type device: torch.device
 
-    :return: A tuple containing:
-        - best_center (torch.Tensor): Center of the sphere (shape: (3,))
-        - best_radius (float): Radius of the sphere
-        - best_inlier_indices (torch.Tensor): Indices of points from the dataset considered as inliers
-    :rtype: Tuple[torch.Tensor, float, torch.Tensor]
+    :return: A SphereFitResult containing:
+        - center: Center of the sphere (shape: (3,))
+        - radius: Radius of the sphere
+        - inliers: Indices of points from the dataset considered as inliers
+    :rtype: SphereFitResult
 
     Example:
         >>> pts = torch.randn(1000, 3)
@@ -48,7 +49,7 @@ def sphere_fit(
         >>> print(f"Sphere radius: {radius}")
         >>> print(f"Number of inliers: {inlier_indices.shape[0]}")
     """
-    pts = pts.to(device)
+    pts = pts.to(device).to(torch.float32)
     num_pts = pts.shape[0]
 
     best_inlier_indices = torch.tensor([], dtype=torch.long, device=device)
@@ -95,7 +96,9 @@ def sphere_fit(
         center = torch.stack(
             [0.5 * (M12 / M11), -0.5 * (M13 / M11), 0.5 * (M14 / M11)], dim=1
         )  # (batch_size, 3)
-        radius = torch.sqrt(torch.sum(center**2, dim=1) - (M15 / M11))  # (batch_size,)
+        radius = torch.sqrt(
+            torch.sum(center**2, dim=1) - (M15 / M11)
+        )  # (batch_size,)
 
         # Step 3: Compute distances of all points to each sphere in the batch
         dist_pts = torch.cdist(center.unsqueeze(1), pts.unsqueeze(0), p=2).squeeze(
@@ -118,4 +121,6 @@ def sphere_fit(
             best_center = center[best_in_batch_idx]
             best_radius = radius[best_in_batch_idx]
 
-    return best_center, best_radius, best_inlier_indices
+    return SphereFitResult(
+        center=best_center, radius=best_radius, inliers=best_inlier_indices
+    )

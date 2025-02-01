@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "torch_ransac3d"
-version = "1.0.36" 
+version = "1.0.36"
 authors = [
  {name = "Harry Dobbs", email = "harrydobbs87@gmail.com"},
 ]
@@ -16,7 +16,7 @@ dependencies = [
  'numpy',
  'torch'
 ]
-# ... rest of your project configuration ...
+
 
 [tool.setuptools_scm]
 write_to = "torch_ransac3d/_version.py"
@@ -37,5 +37,23 @@ Issues = "https://github.com/harrydobbs/torch_ransac3d/issues"
 dev = [
     "sphinx",
     "sphinx-autodoc-typehints",
-    "sphinx-rtd-theme"
+    "sphinx-rtd-theme",
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+    "pytest-timeout"
     ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --color=yes"
+
+[tool.pycln]
+all = true
+expand_stars = true
+verbose = true
+exclude = """
+    __init__.py
+    |tests/.*
+"""

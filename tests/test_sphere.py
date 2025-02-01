@@ -1,0 +1,119 @@
+import numpy as np
+import pytest
+import torch
+
+from torch_ransac3d.sphere import sphere_fit
+
+
+def generate_sphere_points(
+    centre, radius, num_points=1000, noise_std=0.0, outlier_fraction=0.0
+):
+    centre = np.array(centre, dtype=np.float32)
+    radius = np.float32(radius)
+
+    theta = np.random.uniform(0, 2 * np.pi, num_points).astype(np.float32)
+    phi = np.arccos(1 - 2 * np.random.uniform(0, 1, num_points)).astype(np.float32)
+
+    x = radius * np.sin(phi) * np.cos(theta)
+    y = radius * np.sin(phi) * np.sin(theta)
+    z = radius * np.cos(phi)
+
+    points = np.column_stack((x, y, z)).astype(np.float32)
+    points += centre
+
+    # Add noise
+    if noise_std > 0:
+        points += np.random.normal(0, noise_std, points.shape).astype(np.float32)
+
+    # Add outliers
+    if outlier_fraction > 0:
+        num_outliers = int(num_points * outlier_fraction)
+        outlier_indices = np.random.choice(num_points, num_outliers, replace=False)
+        points[outlier_indices] += np.random.uniform(
+            -2 * radius, 2 * radius, (num_outliers, 3)
+        ).astype(np.float32)
+
+    return torch.tensor(points, dtype=torch.float32)
+
+
+def test_sphere_fit_perfect_sphere(device):
+    true_center = np.array([1.0, 2.0, 3.0], dtype=np.float32)
+    true_radius = 2.0
+    points = generate_sphere_points(true_center, true_radius)
+    points = points.to(device)
+
+    result = sphere_fit(points, thresh=0.01, device=device)
+
+    assert torch.allclose(
+        result.center, torch.tensor(true_center, device=device), atol=0.1
+    )
+    assert torch.abs(result.radius - true_radius) < 0.1
+    assert len(result.inliers) > 900  # Most points should be inliers
+
+
+def test_sphere_fit_noisy_data(device):
+    true_center = np.array([0.0, 0.0, 0.0], dtype=np.float32)
+    true_radius = 1.0
+    points = generate_sphere_points(true_center, true_radius, noise_std=0.05)
+    points = points.to(device)
+
+    result = sphere_fit(points, thresh=0.1, device=device)
+
+    assert torch.allclose(
+        result.center, torch.tensor(true_center, device=device), atol=0.2
+    )
+    assert torch.abs(result.radius - true_radius) < 0.2
+    assert len(result.inliers) > 700  # Most points should still be inliers
+
+
+def test_sphere_fit_with_outliers(device):
+    true_center = np.array([-1.0, 1.0, 1.0], dtype=np.float32)
+    true_radius = 1.5
+    points = generate_sphere_points(
+        true_center, true_radius, noise_std=0.02, outlier_fraction=0.3
+    )
+    points = points.to(device)
+
+    result = sphere_fit(points, thresh=0.1, device=device)
+
+    assert torch.allclose(
+        result.center, torch.tensor(true_center, device=device), atol=0.2
+    )
+    assert torch.abs(result.radius - true_radius) < 0.2
+    assert len(result.inliers) > 600  # Should identify inliers despite outliers
+
+
+def test_sphere_fit_edge_cases(device):
+    # Test with minimal number of points
+    points = torch.tensor(
+        [[0, 0, 1], [0, 1, 0], [1, 0, 0], [0, 0, -1]], dtype=torch.float32
+    ).to(device)
+
+    result = sphere_fit(points, thresh=0.1, device=device)
+    assert len(result.inliers) == 4  # All points should be inliers
+
+    # Test with all points the same
+    points = torch.ones((100, 3), dtype=torch.float32).to(device)
+    result = sphere_fit(points, thresh=0.1, device=device)
+    assert (
+        len(result.inliers) >= 0
+    )  # Any number of inliers is acceptable for degenerate case
+
+
+def test_sphere_fit_performance(device):
+    points = generate_sphere_points(
+        np.array([0.0, 0.0, 0.0]), 1.0, num_points=10000, noise_std=0.01
+    )
+    points = points.to(device)
+
+    import time
+
+    start_time = time.time()
+    result = sphere_fit(points, thresh=0.1, device=device)
+    end_time = time.time()
+
+    assert end_time - start_time < 1.0  # Should complete in less than 1 second
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

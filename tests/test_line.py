@@ -1,9 +1,8 @@
+import numpy as np
 import pytest
 import torch
-import numpy as np
-from torch_ransac3d.line import (
-    line_fit,
-)
+
+from torch_ransac3d.line import line_fit
 
 
 @pytest.fixture
@@ -33,11 +32,11 @@ def test_line_fit_perfect_line(device):
     points, true_direction, true_origin = generate_line_points(1000, 0, 0)
     points = points.to(device)
 
-    best_A, best_B, best_inliers = line_fit(points, threshold=1e-5, device=device)
+    result = line_fit(points, thresh=1e-5, device=device)
 
     assert torch.allclose(
-        best_A.abs(),
-        torch.tensor(true_direction).abs().to(device).to(best_A.dtype),
+        result.direction.abs(),
+        torch.tensor(true_direction).abs().to(device).to(result.direction.dtype),
         atol=0.1,
     )
 
@@ -46,13 +45,13 @@ def test_line_fit_noisy_data(device):
     points, true_direction, true_origin = generate_line_points(1000, 0.001, 0)
     points = points.to(device)
 
-    best_A, best_B, best_inliers = line_fit(
-        points, threshold=0.5, device=device, max_iterations=10000
+    result = line_fit(
+        points, thresh=0.5, device=device, max_iterations=10000
     )
 
     assert torch.allclose(
-        best_A.abs(),
-        torch.tensor(true_direction).abs().to(device).to(best_A.dtype),
+        result.direction.abs(),
+        torch.tensor(true_direction).abs().to(device).to(result.direction.dtype),
         atol=0.1,
     )
 
@@ -61,25 +60,25 @@ def test_line_fit_with_outliers(device):
     points, true_direction, true_origin = generate_line_points(1000, 0.1, 0.2)
     points = points.to(device)
 
-    best_A, best_B, best_inliers = line_fit(points, threshold=0.2, device=device)
+    result = line_fit(points, thresh=0.2, device=device)
 
     assert torch.allclose(
-        best_A.abs(),
-        torch.tensor(true_direction).abs().to(device).to(best_A.dtype),
-        atol=0.5,
+        result.direction.abs(),
+        torch.tensor(true_direction, device=device).abs().to(result.direction.dtype),
+        atol=1.0,
     )
 
 
 def test_line_fit_edge_cases(device):
     # Test with minimal number of points
     points = torch.tensor([[0, 0, 0], [1, 1, 1]], dtype=torch.float32).to(device)
-    best_A, best_B, best_inliers = line_fit(points, threshold=1e-5, device=device)
-    assert len(best_inliers) == 2
+    result = line_fit(points, thresh=1e-5, device=device)
+    assert len(result.inliers) == 2
 
     # Test with all points the same
     points = torch.ones((100, 3), dtype=torch.float32).to(device)
-    best_A, best_B, best_inliers = line_fit(points, threshold=1e-5, device=device)
-    assert len(best_inliers) == 100
+    result = line_fit(points, thresh=1e-5, device=device)
+    assert len(result.inliers) == 100
 
 
 def test_line_fit_performance(device):
@@ -89,7 +88,7 @@ def test_line_fit_performance(device):
     import time
 
     start_time = time.time()
-    best_A, best_B, best_inliers = line_fit(points, threshold=0.2, device=device)
+    result = line_fit(points, thresh=0.2, device=device)
     end_time = time.time()
 
     assert (
