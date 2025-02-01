@@ -28,6 +28,8 @@ jobs:
       - name: Check SCM Version
         run: |
           python -c "from setuptools_scm import get_version; print(f'Detected version: {get_version()}')"
+          python -c "import os; print(f'Current directory: {os.getcwd()}'); print(f'Files: {os.listdir()}')"
+          git describe --tags
 
       - name: Build release distributions
         run: python -m build
@@ -56,3 +58,6 @@ jobs:
 
       - name: Publish release distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true
+          print-hash: true
