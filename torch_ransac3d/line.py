@@ -1,8 +1,9 @@
+from typing import Tuple
+
 import torch
 
-from typing import Tuple
-from .wrapper import numpy_to_torch
 from .dataclasses import LineFitResult
+from .wrapper import numpy_to_torch
 
 
 @numpy_to_torch
@@ -77,9 +78,11 @@ def line_fit(
         valid_mask = line_norms.squeeze(-1) > epsilon
         if not valid_mask.any():
             continue
-        
+
         normalized_line_vectors = torch.zeros_like(line_vectors)
-        normalized_line_vectors[valid_mask] = line_vectors[valid_mask] / line_norms[valid_mask]
+        normalized_line_vectors[valid_mask] = (
+            line_vectors[valid_mask] / line_norms[valid_mask]
+        )
 
         # Expand the point cloud to match the batch size for pairwise distance calculations
         all_points_expanded = pts.unsqueeze(0).expand(current_batch_size, -1, -1)
@@ -118,5 +121,5 @@ def line_fit(
     return LineFitResult(
         direction=best_line_direction,
         point=best_line_point,
-        inliers=best_inlier_indices
+        inliers=best_inlier_indices,
     )

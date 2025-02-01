@@ -30,7 +30,7 @@ def rodrigues_rot_torch(
         n0 = n0.unsqueeze(0)
     if n1.dim() == 1:
         n1 = n1.unsqueeze(0)
-    
+
     # Handle batch dimension
     if n0.dim() == 2 and P.dim() == 3:
         if n0.size(0) == 1:
@@ -97,7 +97,7 @@ def knn_pytorch(x, k):
 def estimate_normals(pts: torch.Tensor, k: int = None) -> torch.Tensor:
     """Estimate normals using PCA on local neighborhoods."""
     if k is None:
-        k = min(20, pts.shape[0]-1)  # Make sure k is not larger than n-1
+        k = min(20, pts.shape[0] - 1)  # Make sure k is not larger than n-1
     # Find k-nearest neighbors
     knn_indices = knn_pytorch(pts, k)
 

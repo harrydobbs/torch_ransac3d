@@ -1,7 +1,9 @@
-import torch
 from typing import Tuple
-from .wrapper import numpy_to_torch
+
+import torch
+
 from .dataclasses import PointFitResult
+from .wrapper import numpy_to_torch
 
 
 @numpy_to_torch

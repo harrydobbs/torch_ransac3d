@@ -1,7 +1,8 @@
-import torch
 import numpy as np
-from torch_ransac3d.line import line_fit
 import open3d as o3d
+import torch
+
+from torch_ransac3d.line import line_fit
 
 
 def generate_line_points(
@@ -9,16 +10,16 @@ def generate_line_points(
     point: np.ndarray,
     num_points: int = 1000,
     noise_scale: float = 0,
-    line_length: float = 2.0
+    line_length: float = 2.0,
 ) -> np.ndarray:
     """Generate synthetic line points with optional noise."""
     # Normalize direction vector
     direction = direction / np.linalg.norm(direction)
-    
+
     # Generate points along the line
-    t = np.linspace(-line_length/2, line_length/2, num_points)
+    t = np.linspace(-line_length / 2, line_length / 2, num_points)
     points = point + np.outer(t, direction)
-    
+
     # Add noise perpendicular to line direction
     if noise_scale > 0:
         # Create random vectors
@@ -26,7 +27,7 @@ def generate_line_points(
         # Project noise to be perpendicular to line direction
         noise = noise - np.outer(np.dot(noise, direction), direction)
         points = points + noise
-    
+
     return points.astype(np.float32)
 
 
@@ -34,19 +35,21 @@ def create_line_mesh(direction, point, points, color=[0, 1, 0]):
     """Create a cylinder mesh representing the line."""
     # Ensure direction is normalized
     direction = direction / (np.linalg.norm(direction) + 1e-8)
-    
+
     # Use points extent to determine line length
     proj = np.dot(points - point, direction)
     min_t, max_t = np.min(proj), np.max(proj)
-    
+
     # Ensure cylinder has positive height
     if max_t <= min_t:
         max_t = min_t + 1.0
-    
+
     # Create cylinder along the line
     radius = 0.02  # Small radius for visualization
-    cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=radius, height=max_t-min_t)
-    
+    cylinder = o3d.geometry.TriangleMesh.create_cylinder(
+        radius=radius, height=max_t - min_t
+    )
+
     # Rotate cylinder to align with line direction
     z_axis = np.array([0, 0, 1])
     # Handle case where direction is zero or parallel to z-axis
@@ -61,11 +64,11 @@ def create_line_mesh(direction, point, points, color=[0, 1, 0]):
     # Get cylinder center for rotation
     cylinder_center = np.mean(np.asarray(cylinder.vertices), axis=0)
     cylinder.rotate(rotation_matrix, center=cylinder_center)
-    
+
     # Move to correct position
     start_point = point + min_t * direction
-    cylinder.translate(start_point + (max_t-min_t)/2 * direction)
-    
+    cylinder.translate(start_point + (max_t - min_t) / 2 * direction)
+
     cylinder.paint_uniform_color(color)
     cylinder.compute_vertex_normals()
     return cylinder
@@ -75,21 +78,21 @@ def visualize_line_fit(points, direction, point, inliers):
     """Visualize line fitting results."""
     # Create line mesh
     line = create_line_mesh(direction.numpy(), point.numpy(), points)
-    
+
     # Create point cloud for all points (red)
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(points)
     pcd.paint_uniform_color([1, 0, 0])  # Red for all points
-    
+
     # Create point cloud for inliers (blue)
     inlier_points = pcd.select_by_index(inliers.numpy())
     inlier_points.paint_uniform_color([0, 0, 1])  # Blue for inliers
-    
+
     # Create coordinate frame
     coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(
         size=0.5, origin=point.numpy()
     )
-    
+
     # Visualize
     o3d.visualization.draw_geometries([pcd, inlier_points, line, coord_frame])
 
@@ -99,18 +102,20 @@ def main():
     true_direction = np.array([1.0, 1.0, 1.0])
     true_direction = true_direction / np.linalg.norm(true_direction)
     true_point = np.array([0.0, 0.0, 0.0])
-    points = generate_line_points(true_direction, true_point, noise_scale=0.1, line_length=5.0)
-    
+    points = generate_line_points(
+        true_direction, true_point, noise_scale=0.1, line_length=5.0
+    )
+
     # Fit line
     result = line_fit(points, thresh=0.2)
-    
+
     # Print results
     print(f"True direction: {true_direction}")
     print(f"Fitted direction: {result.direction.numpy()}")
     print(f"True point: {true_point}")
     print(f"Fitted point: {result.point.numpy()}")
     print(f"Number of inliers: {len(result.inliers)}")
-    
+
     # Visualize results
     visualize_line_fit(points, result.direction, result.point, result.inliers)
 

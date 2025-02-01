@@ -1,5 +1,7 @@
-import torch
 from typing import Tuple
+
+import torch
+
 from .wrapper import numpy_to_torch
 
 

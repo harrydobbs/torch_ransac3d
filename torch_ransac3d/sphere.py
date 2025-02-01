@@ -1,9 +1,9 @@
-import torch
-
 from typing import Tuple
 
-from .wrapper import numpy_to_torch
+import torch
+
 from .dataclasses import SphereFitResult
+from .wrapper import numpy_to_torch
 
 
 @numpy_to_torch
@@ -96,7 +96,9 @@ def sphere_fit(
         center = torch.stack(
             [0.5 * (M12 / M11), -0.5 * (M13 / M11), 0.5 * (M14 / M11)], dim=1
         )  # (batch_size, 3)
-        radius = torch.sqrt(torch.sum(center**2, dim=1) - (M15 / M11))  # (batch_size,)
+        radius = torch.sqrt(
+            torch.sum(center**2, dim=1) - (M15 / M11)
+        )  # (batch_size,)
 
         # Step 3: Compute distances of all points to each sphere in the batch
         dist_pts = torch.cdist(center.unsqueeze(1), pts.unsqueeze(0), p=2).squeeze(
@@ -120,7 +122,5 @@ def sphere_fit(
             best_radius = radius[best_in_batch_idx]
 
     return SphereFitResult(
-        center=best_center,
-        radius=best_radius,
-        inliers=best_inlier_indices
+        center=best_center, radius=best_radius, inliers=best_inlier_indices
     )

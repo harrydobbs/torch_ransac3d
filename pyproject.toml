@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "torch_ransac3d"
-version = "1.0.36" 
+version = "1.0.36"
 authors = [
  {name = "Harry Dobbs", email = "harrydobbs87@gmail.com"},
 ]
@@ -48,3 +48,12 @@ dev = [
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --color=yes"
+
+[tool.pycln]
+all = true
+expand_stars = true
+verbose = true
+exclude = """
+    __init__.py
+    |tests/.*
+"""

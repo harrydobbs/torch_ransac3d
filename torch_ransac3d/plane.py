@@ -1,9 +1,9 @@
-import torch
-
 from typing import Tuple
 
-from .wrapper import numpy_to_torch
+import torch
+
 from .dataclasses import PlaneFitResult
+from .wrapper import numpy_to_torch
 
 
 @numpy_to_torch

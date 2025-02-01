@@ -155,5 +155,5 @@ This project is based on the work done at https://github.com/leomariga/pyRANSAC-
 
 ## Contact
 
-**Maintainer:** Harry Dobbs  
+**Maintainer:** Harry Dobbs
 **Email:** harrydobbs87@gmail.com

@@ -1,26 +1,21 @@
-import torch
 import numpy as np
-from torch_ransac3d.plane import (
-    plane_fit,
-)
 import open3d as o3d
+import torch
+
+from torch_ransac3d.plane import plane_fit
 
 
 def generate_plane_points(
-    normal,
-    d,
-    num_points=1000,
-    noise_std=0.0,
-    outlier_fraction=0.0
+    normal, d, num_points=1000, noise_std=0.0, outlier_fraction=0.0
 ):
     """Generate synthetic plane points with optional noise."""
     normal = np.array(normal, dtype=np.float32)
     d = np.float32(d)
-    
+
     # Generate random points in a plane
     x = np.random.uniform(-5, 5, num_points).astype(np.float32)
     y = np.random.uniform(-5, 5, num_points).astype(np.float32)
-    
+
     # Calculate z coordinates using plane equation ax + by + cz + d = 0
     # Avoid division by zero
     if abs(normal[2]) < 1e-8:
@@ -28,19 +23,21 @@ def generate_plane_points(
     else:
         z = -(normal[0] * x + normal[1] * y + d) / normal[2]
     z = z.astype(np.float32)
-    
+
     points = np.column_stack((x, y, z))
-    
+
     # Add noise
     if noise_std > 0:
         points += np.random.normal(0, noise_std, points.shape).astype(np.float32)
-    
+
     # Add outliers
     if outlier_fraction > 0:
         num_outliers = int(num_points * outlier_fraction)
         outlier_indices = np.random.choice(num_points, num_outliers, replace=False)
-        points[outlier_indices] += np.random.uniform(-2, 2, (num_outliers, 3)).astype(np.float32)
-    
+        points[outlier_indices] += np.random.uniform(-2, 2, (num_outliers, 3)).astype(
+            np.float32
+        )
+
     return points
 
 
@@ -114,11 +111,7 @@ def main():
     print(f"Number of inliers: {len(result.inliers)}")
 
     # Visualize results
-    visualize_plane_fit(
-        points,
-        result.equation,
-        result.inliers
-    )
+    visualize_plane_fit(points, result.equation, result.inliers)
 
 
 if __name__ == "__main__":

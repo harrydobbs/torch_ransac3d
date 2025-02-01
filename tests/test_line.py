@@ -1,9 +1,8 @@
+import numpy as np
 import pytest
 import torch
-import numpy as np
-from torch_ransac3d.line import (
-    line_fit,
-)
+
+from torch_ransac3d.line import line_fit
 
 
 @pytest.fixture
