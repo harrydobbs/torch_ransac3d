@@ -3,6 +3,7 @@ import torch
 from typing import Tuple
 
 from .wrapper import numpy_to_torch
+from .dataclasses import PlaneFitResult
 
 
 @numpy_to_torch
@@ -15,7 +16,7 @@ def plane_fit(
     iterations_per_batch: int = 1,
     epsilon: float = 1e-8,
     device: torch.device = torch.device("cpu"),
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> PlaneFitResult:
     """
     Find the best equation for a plane using a batched RANSAC approach.
 
@@ -35,19 +36,17 @@ def plane_fit(
     :param device: Device to run the computations on.
     :type device: torch.device
 
-    :return: A tuple containing:
-        - equation (torch.Tensor): Parameters of the plane equation Ax+By+Cz+D (shape: (1, 4))
-        - inliers (torch.Tensor): Points from the dataset considered as inliers
-    :rtype: Tuple[torch.Tensor, torch.Tensor]
+    :return: A PlaneFitResult containing the plane equation and inlier indices
+    :rtype: PlaneFitResult
 
     Example:
         >>> pts = torch.randn(1000, 3)
-        >>> equation, inliers = plane_fit(pts)
-        >>> print(f"Plane equation: {equation}")
-        >>> print(f"Number of inliers: {inliers.shape[0]}")
+        >>> result = plane_fit(pts)
+        >>> print(f"Plane equation: {result.equation}")
+        >>> print(f"Number of inliers: {result.inliers.shape[0]}")
     """
 
-    pts = pts.to(device)
+    pts = pts.to(device).to(torch.float32)
     num_pts = pts.shape[0]
 
     best_inlier_indices = torch.tensor([], dtype=torch.long, device=device)
@@ -106,4 +105,4 @@ def plane_fit(
             best_inlier_indices = torch.where(inlier_mask[best_in_batch_idx])[0]
             best_eq = plane_eq[best_in_batch_idx]
 
-    return best_eq, best_inlier_indices
+    return PlaneFitResult(equation=best_eq, inliers=best_inlier_indices)

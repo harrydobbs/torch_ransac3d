@@ -4,12 +4,11 @@ from .wrapper import numpy_to_torch
 
 
 @numpy_to_torch
-@torch.compile
 @torch.no_grad()
 def cuboid_fit(
     pts: torch.Tensor,
     thresh: float = 0.05,
-    max_iterations: int = 5000,
+    max_iterations: int = 1000,
     iterations_per_batch: int = 1,
     epsilon: float = 1e-8,
     device: torch.device = torch.device("cpu"),
@@ -61,7 +60,7 @@ def cuboid_fit(
         # Compute vectors for the first plane
         vec_A = pt_samples[:, 1] - pt_samples[:, 0]
         vec_B = pt_samples[:, 2] - pt_samples[:, 0]
-        vec_C = torch.cross(vec_A, vec_B)
+        vec_C = torch.linalg.cross(vec_A, vec_B, dim=-1)
         vec_C = vec_C / (torch.norm(vec_C, dim=1, keepdim=True) + epsilon)
 
         # Compute k for the first plane
@@ -77,7 +76,7 @@ def cuboid_fit(
 
         vec_D = p4_proj_plane - pt_samples[:, 3]
         vec_E = pt_samples[:, 4] - pt_samples[:, 3]
-        vec_F = torch.cross(vec_D, vec_E)
+        vec_F = torch.linalg.cross(vec_D, vec_E, dim=-1)
         vec_F = vec_F / (torch.norm(vec_F, dim=1, keepdim=True) + epsilon)
 
         k = -torch.sum(vec_F * pt_samples[:, 4], dim=1)
@@ -86,7 +85,7 @@ def cuboid_fit(
         )  # (batch_size, 8)
 
         # Compute the third plane
-        vec_G = torch.cross(vec_C, vec_F)
+        vec_G = torch.cross(vec_C, vec_F, dim=-1)
         k = -torch.sum(vec_G * pt_samples[:, 5], dim=1)
         plane_eq = torch.cat(
             [plane_eq, torch.cat([vec_G, k.unsqueeze(1)], dim=1)], dim=1

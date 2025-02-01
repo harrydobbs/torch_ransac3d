@@ -1,6 +1,7 @@
 import torch
 from typing import Tuple
 from .wrapper import numpy_to_torch
+from .dataclasses import PointFitResult
 
 
 @numpy_to_torch
@@ -8,13 +9,13 @@ from .wrapper import numpy_to_torch
 @torch.no_grad()
 def point_fit(
     pts: torch.Tensor,
-    thresh: float = 0.2,
-    max_iterations: int = 10000,
-    iterations_per_batch: int = 100,
+    thresh: float = 0.05,
+    max_iterations: int = 1000,
+    iterations_per_batch: int = 1,
     device: torch.device = torch.device("cpu"),
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> PointFitResult:
     """
-    Find the best point for the 3D Point representation using a batched RANSAC approach.
+    Find the best center point using a batched RANSAC approach.
 
     This function finds the point with the most neighbors within a specified radius.
 
@@ -29,10 +30,8 @@ def point_fit(
     :param device: Device to run the computations on.
     :type device: torch.device
 
-    :return: A tuple containing:
-        - center (torch.Tensor): Point selected as best candidate (shape: (3,))
-        - inliers (torch.Tensor): Indices of points from the dataset considered as inliers
-    :rtype: Tuple[torch.Tensor, torch.Tensor]
+    :return: A PointFitResult containing the center point and inlier indices
+    :rtype: PointFitResult
 
     Example:
         >>> pts = torch.randn(1000, 3)
@@ -40,7 +39,7 @@ def point_fit(
         >>> print(f"Best point: {center}")
         >>> print(f"Number of inliers: {inliers.shape[0]}")
     """
-    pts = pts.to(device)
+    pts = pts.to(device).to(torch.float32)
     num_pts = pts.shape[0]
 
     best_inliers = torch.tensor([], dtype=torch.long, device=device)
@@ -71,4 +70,4 @@ def point_fit(
             best_inliers = torch.where(inlier_mask[best_in_batch_idx])[0]
             best_center = pt_samples[best_in_batch_idx]
 
-    return best_center, best_inliers
+    return PointFitResult(center=best_center, inliers=best_inliers)

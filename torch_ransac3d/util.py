@@ -22,14 +22,21 @@ def rodrigues_rot_torch(
     n1 = n1.to(torch.float32)
 
     # Reshape inputs if necessary
-    if P.dim() == 3:  # If P is [batch, N, 3]
-        P = P.unsqueeze(1)  # Make it [batch, 1, N, 3]
+    if P.dim() == 2:  # If P is [N, 3]
+        P = P.unsqueeze(0)  # Make it [1, N, 3]
 
-    # Ensure n0 and n1 have the same shape
-    while n0.dim() < P.dim() - 1:
-        n0 = n0.unsqueeze(1)
-    while n1.dim() < P.dim() - 1:
-        n1 = n1.unsqueeze(1)
+    # Reshape vectors to match batch dimension
+    if n0.dim() == 1:
+        n0 = n0.unsqueeze(0)
+    if n1.dim() == 1:
+        n1 = n1.unsqueeze(0)
+    
+    # Handle batch dimension
+    if n0.dim() == 2 and P.dim() == 3:
+        if n0.size(0) == 1:
+            n0 = n0.expand(P.size(0), -1)
+        if n1.size(0) == 1:
+            n1 = n1.expand(P.size(0), -1)
 
     # Normalize vectors
     n0 = n0 / (torch.linalg.norm(n0, dim=-1, keepdim=True) + 1e-8)
@@ -46,17 +53,18 @@ def rodrigues_rot_torch(
     theta = torch.acos(torch.clamp(torch.sum(n0 * n1, dim=-1), -1, 1))
 
     # Prepare for broadcasting
-    cos_theta = theta.cos().unsqueeze(-1).unsqueeze(-1)
-    sin_theta = theta.sin().unsqueeze(-1).unsqueeze(-1)
+    cos_theta = theta.cos().view(-1, 1, 1)
+    sin_theta = theta.sin().view(-1, 1, 1)
 
     # Ensure k_normalized has the same shape as P
-    k_normalized = k_normalized.unsqueeze(-2)
+    k_normalized = k_normalized.unsqueeze(1)  # [batch, 1, 3]
+    k_normalized = k_normalized.expand(-1, P.size(1), -1)  # [batch, N, 3]
 
     # Compute rotated points
     k_dot_p = torch.sum(k_normalized * P, dim=-1, keepdim=True)
     P_rot = (
         P * cos_theta
-        + torch.linalg.cross(k_normalized.expand_as(P), P, dim=-1) * sin_theta
+        + torch.linalg.cross(k_normalized, P, dim=-1) * sin_theta
         + k_normalized * k_dot_p * (1 - cos_theta)
     )
 
@@ -64,7 +72,7 @@ def rodrigues_rot_torch(
     mask = mask.unsqueeze(-1).unsqueeze(-1)
     P_rot = torch.where(mask, P_rot, P)
 
-    return P_rot.squeeze(1)  # Remove the extra dimension we added
+    return P_rot.squeeze(0)  # Remove the extra dimension we added
 
 
 def knn_pytorch(x, k):
@@ -86,8 +94,10 @@ def knn_pytorch(x, k):
     return idx
 
 
-def estimate_normals(pts: torch.Tensor, k: int = 20) -> torch.Tensor:
+def estimate_normals(pts: torch.Tensor, k: int = None) -> torch.Tensor:
     """Estimate normals using PCA on local neighborhoods."""
+    if k is None:
+        k = min(20, pts.shape[0]-1)  # Make sure k is not larger than n-1
     # Find k-nearest neighbors
     knn_indices = knn_pytorch(pts, k)
 

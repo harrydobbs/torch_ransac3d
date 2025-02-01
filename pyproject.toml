@@ -16,7 +16,7 @@ dependencies = [
  'numpy',
  'torch'
 ]
-# ... rest of your project configuration ...
+
 
 [tool.setuptools_scm]
 write_to = "torch_ransac3d/_version.py"
@@ -37,5 +37,14 @@ Issues = "https://github.com/harrydobbs/torch_ransac3d/issues"
 dev = [
     "sphinx",
     "sphinx-autodoc-typehints",
-    "sphinx-rtd-theme"
+    "sphinx-rtd-theme",
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+    "pytest-timeout"
     ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --color=yes"

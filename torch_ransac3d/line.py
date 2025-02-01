@@ -2,6 +2,7 @@ import torch
 
 from typing import Tuple
 from .wrapper import numpy_to_torch
+from .dataclasses import LineFitResult
 
 
 @numpy_to_torch
@@ -9,12 +10,12 @@ from .wrapper import numpy_to_torch
 @torch.no_grad()
 def line_fit(
     pts: torch.Tensor,
-    thresh: float = 0.01,
+    thresh: float = 0.05,
     max_iterations: int = 1000,
     iterations_per_batch: int = 1,
     epsilon: float = 1e-8,
     device: torch.device = torch.device("cpu"),
-) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+) -> LineFitResult:
     """
     Fit a line using a RANSAC-like method in a batched approach.
 
@@ -34,18 +35,15 @@ def line_fit(
     :param device: Device to run the computations on.
     :type device: torch.device
 
-    :return: A tuple containing:
-        - best_line_direction (torch.Tensor): Best line direction vector found (shape: (3,))
-        - best_line_point (torch.Tensor): A point on the best line found (shape: (3,))
-        - best_inlier_indices (torch.Tensor): Indices of points considered inliers
-    :rtype: Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+    :return: A LineFitResult containing the line direction, point, and inlier indices
+    :rtype: LineFitResult
 
     Example:
         >>> pts = torch.randn(1000, 3)
-        >>> direction, point, inlier_indices = line_fit(pts)
-        >>> print(f"Line direction: {direction}")
-        >>> print(f"Point on line: {point}")
-        >>> print(f"Number of inliers: {inlier_indices.shape[0]}")
+        >>> result = line_fit(pts)
+        >>> print(f"Line direction: {result.direction}")
+        >>> print(f"Point on line: {result.point}")
+        >>> print(f"Number of inliers: {result.inliers.shape[0]}")
     """
 
     # Move the point cloud to the specified device (CUDA or CPU)
@@ -74,9 +72,14 @@ def line_fit(
         line_vectors = sampled_points[:, 1, :] - sampled_points[:, 0, :]
 
         # Normalize line vectors to unit length
-        normalized_line_vectors = line_vectors / (
-            torch.norm(line_vectors, dim=1, keepdim=True) + epsilon
-        )
+        line_norms = torch.norm(line_vectors, dim=1, keepdim=True)
+        # Handle zero-length vectors
+        valid_mask = line_norms.squeeze(-1) > epsilon
+        if not valid_mask.any():
+            continue
+        
+        normalized_line_vectors = torch.zeros_like(line_vectors)
+        normalized_line_vectors[valid_mask] = line_vectors[valid_mask] / line_norms[valid_mask]
 
         # Expand the point cloud to match the batch size for pairwise distance calculations
         all_points_expanded = pts.unsqueeze(0).expand(current_batch_size, -1, -1)
@@ -112,4 +115,8 @@ def line_fit(
             best_line_point = sampled_points[best_iteration_in_batch, 0, :]
 
     # Return the best line direction, point, and inlier indices
-    return best_line_direction, best_line_point, best_inlier_indices
+    return LineFitResult(
+        direction=best_line_direction,
+        point=best_line_point,
+        inliers=best_inlier_indices
+    )
