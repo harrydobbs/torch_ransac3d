@@ -1,10 +1,14 @@
-from typing import Tuple
+"""Line fitting implementation using RANSAC."""
+
+from typing import Tuple, Optional
 
 import torch
 
 from .dataclasses import LineFitResult
 from .wrapper import numpy_to_torch
 
+# Define default device at module level
+DEFAULT_DEVICE = torch.device("cpu")
 
 @numpy_to_torch
 @torch.compile
@@ -15,7 +19,7 @@ def line_fit(
     max_iterations: int = 1000,
     iterations_per_batch: int = 1,
     epsilon: float = 1e-8,
-    device: torch.device = torch.device("cpu"),
+    device: torch.device = DEFAULT_DEVICE,
 ) -> LineFitResult:
     """
     Fit a line using a RANSAC-like method in a batched approach.
@@ -47,13 +51,14 @@ def line_fit(
         >>> print(f"Number of inliers: {result.inliers.shape[0]}")
     """
 
-    # Move the point cloud to the specified device (CUDA or CPU)
-    # pts = pts.to(device)
+    pts = pts.to(device).to(torch.float32)
     num_pts = pts.shape[0]
 
     # Initialize variables to store the best result
     best_inlier_indices = torch.tensor([], dtype=torch.long, device=device)
     best_inlier_count = 0
+    best_line_direction = None
+    best_line_point = None
 
     # Iterate over batches of iterations
     for start_idx in range(0, max_iterations, iterations_per_batch):
@@ -116,6 +121,14 @@ def line_fit(
             best_inlier_indices = torch.where(inlier_mask[best_iteration_in_batch])[0]
             best_line_direction = normalized_line_vectors[best_iteration_in_batch]
             best_line_point = sampled_points[best_iteration_in_batch, 0, :]
+
+    # Handle case where no valid lines were found
+    if best_line_direction is None:
+        # Use first two points to define a line
+        best_line_point = pts[0]
+        direction = pts[1] - pts[0]
+        best_line_direction = direction / (torch.norm(direction) + epsilon)
+        best_inlier_indices = torch.arange(len(pts), device=device)
 
     # Return the best line direction, point, and inlier indices
     return LineFitResult(

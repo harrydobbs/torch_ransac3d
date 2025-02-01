@@ -91,8 +91,8 @@ def visualize_plane_fit(points, equation, inliers):
 
 
 def main():
+    """Run plane fitting demo."""
     # Generate synthetic plane data
-    n_points = 1000
     true_normal = np.array([1.0, 1.0, 1.0])
     true_normal = true_normal / np.linalg.norm(true_normal)
     true_d = 2.0

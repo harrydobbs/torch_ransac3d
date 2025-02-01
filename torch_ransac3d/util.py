@@ -1,4 +1,5 @@
 import torch
+from typing import Optional
 
 
 def rodrigues_rot_torch(
@@ -94,10 +95,18 @@ def knn_pytorch(x, k):
     return idx
 
 
-def estimate_normals(pts: torch.Tensor, k: int = None) -> torch.Tensor:
-    """Estimate normals using PCA on local neighborhoods."""
+def estimate_normals(
+    pts: torch.Tensor, 
+    k: Optional[int] = None
+) -> torch.Tensor:
+    """Estimate normals using PCA on local neighborhoods.
+    
+    Args:
+        pts: Input point cloud
+        k: Number of neighbors, defaults to min(20, pts.shape[0]-1)
+    """
     if k is None:
-        k = min(20, pts.shape[0] - 1)  # Make sure k is not larger than n-1
+        k = min(20, pts.shape[0] - 1)
     # Find k-nearest neighbors
     knn_indices = knn_pytorch(pts, k)
 

@@ -1,6 +1,7 @@
 import numpy as np
 import open3d as o3d
 import torch
+from typing import List, Optional
 
 from torch_ransac3d.line import line_fit
 
@@ -31,8 +32,23 @@ def generate_line_points(
     return points.astype(np.float32)
 
 
-def create_line_mesh(direction, point, points, color=[0, 1, 0]):
-    """Create a cylinder mesh representing the line."""
+def create_line_mesh(
+    direction, 
+    point, 
+    points, 
+    color: Optional[List[float]] = None
+) -> o3d.geometry.TriangleMesh:
+    """Create a cylinder mesh representing the line.
+    
+    Args:
+        direction: Direction vector of the line
+        point: Point on the line
+        points: Point cloud
+        color: RGB color values, defaults to [0, 1, 0]
+    """
+    if color is None:
+        color = [0, 1, 0]
+
     # Ensure direction is normalized
     direction = direction / (np.linalg.norm(direction) + 1e-8)
 
